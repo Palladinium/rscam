@@ -7,7 +7,7 @@ use std::{io, mem, usize};
 
 // C types and constants.
 use libc::timeval as Timeval;
-use libc::{c_ulong, c_void, off_t, size_t};
+use libc::{c_int, c_ulong, c_void, off_t, size_t};
 use libc::{MAP_SHARED, O_RDWR, PROT_READ, PROT_WRITE};
 
 #[cfg(not(feature = "no_wrapper"))]
@@ -216,7 +216,7 @@ pub struct Buffer {
     pub timecode: TimeCode,
     pub sequence: u32,
     pub memory: u32,
-    pub m: usize, // offset (__u32) or userptr (ulong)
+    pub m: M,
     pub length: u32,
     pub input: u32,
     reserved: u32,
@@ -229,6 +229,14 @@ impl Buffer {
         buf.memory = MEMORY_MMAP;
         buf
     }
+}
+
+#[repr(C)]
+pub union M {
+    pub offset: u32,
+    pub userptr: c_ulong,
+    pub planes: *mut c_void,
+    pub fd: c_int,
 }
 
 #[repr(C)]

@@ -611,7 +611,8 @@ impl Camera {
             buf.index = i;
             v4l2::xioctl(self.fd, v4l2::VIDIOC_QUERYBUF, &mut buf)?;
 
-            let region = v4l2::mmap(buf.length as usize, self.fd, buf.m)?;
+            let region = v4l2::mmap(buf.length as usize, self.fd, unsafe { buf.m.offset }
+                as usize)?;
             self.buffers.push(Arc::new(region));
         }
 
